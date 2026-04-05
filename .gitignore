@@ -1,0 +1,35 @@
+# 🔐 Secrets
+.env
+
+# 🐍 Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# 🧪 Virtual Environment
+venv/
+env/
+
+# 🖥 OS files
+.DS_Store
+Thumbs.db
+
+# 📦 Logs
+*.log
+
+# 🧱 Build / cache
+.cache/
+
+# 🔥 FastAPI / Uvicorn
+*.sqlite3
+
+# ⚛️ Next.js (frontend)
+frontend/.next/
+frontend/node_modules/
+
+# General node
+node_modules/
+
+# VS Code
+.vscode/
