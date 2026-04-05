@@ -1,24 +1,28 @@
-from openai import OpenAI
 import json
 import base64
 import os
+from openai import OpenAI
 
-# 🔐 Load API key safely
-api_key = os.getenv("OPENROUTER_API_KEY")
 
-if not api_key:
-    raise ValueError("❌ Missing OPENROUTER_API_KEY in environment variables")
+# 🔐 Create client ONLY when needed (fixes Render crash)
+def get_client():
+    api_key = os.getenv("OPENROUTER_API_KEY")
 
-client = OpenAI(
-    api_key=api_key,
-    base_url="https://openrouter.ai/api/v1"
-)
+    if not api_key:
+        raise ValueError("Missing OPENROUTER_API_KEY")
+
+    return OpenAI(
+        api_key=api_key,
+        base_url="https://openrouter.ai/api/v1"
+    )
+
 
 def encode_image(image_bytes):
     return base64.b64encode(image_bytes).decode("utf-8")
 
 
 def process_document(text, images=None):
+    client = get_client()  # 🔥 moved here (IMPORTANT FIX)
 
     encoded_images = []
     if images:
@@ -131,13 +135,19 @@ DOCUMENT:
 
         output_text = response.choices[0].message.content
 
-        # clean markdown
+        # 🔥 Clean markdown safely
         output_text = output_text.replace("```json", "").replace("```", "").strip()
 
         try:
             return json.loads(output_text)
         except:
-            return {"error": "Invalid JSON", "raw": output_text}
+            return {
+                "error": "Invalid JSON",
+                "raw": output_text
+            }
 
     except Exception as e:
-        return {"error": "API failed", "details": str(e)}
+        return {
+            "error": "API failed",
+            "details": str(e)
+        }
